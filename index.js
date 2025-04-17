@@ -3,6 +3,7 @@ import { OrbitControls } from 'orbit'
 import { LineMaterial } from 'lineMaterial'
 import { GLTFLoader } from 'gltf-loader'
 
+const ENABLE_ORBIT = false
 const MODEL_PATH = 'Fluke.glb'
 window.onload = () =>
 {
@@ -23,6 +24,11 @@ window.onload = () =>
     renderer.setPixelRatio(2)
     const controls = new OrbitControls(camera, renderer.domElement )
     controls.target = new THREE.Vector3(0, 0.05, 0)
+    controls.update()
+    controls.enablePan = false
+    controls.enableRotate = ENABLE_ORBIT
+    controls.enableZoom = false
+
     let gltfLoader = new GLTFLoader()
     gltfLoader.load(MODEL_PATH, model=>{
         scene.add(model.scene)
@@ -32,11 +38,11 @@ window.onload = () =>
     function animate() 
     {
         requestAnimationFrame(animate)
-        controls.update()
         camera.aspect = window.innerWidth/window.innerHeight
         camera.updateProjectionMatrix()
         renderer.setSize(window.innerWidth, window.innerHeight)
         renderer.render(scene, camera)
+        controls.update()
         directLight.position.set(camera.position.x, camera.position.y, camera.position.z)
         directLight.lookAt(new THREE.Vector3())
     }
