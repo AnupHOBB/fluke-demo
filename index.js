@@ -49,7 +49,7 @@ window.onload = () =>
         cursor.y = e.clientY
         let intersects = rayCast(e.clientX, e.clientY)
         meshName = intersects[0].object.name
-        fluke.onSelect(meshName)
+        fluke.onSelectSlider(meshName)
     })
 
     canvas.addEventListener('mousemove', e=>{

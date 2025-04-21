@@ -1,4 +1,4 @@
-import { MathUtils } from "three"
+import * as THREE from 'three'
 
 export class FlukeDevice
 {
@@ -30,7 +30,10 @@ export class FlukeDevice
             else if (m.name == 'SliderButtonParent')
                 this.meshes.set('SliderButton', m)
             else if (m.name == 'Screen')
+            {    
                 this.meshes.set('Screen', m)
+                this.defaultScreenMaterial = m.material
+            }
         })
     }
 
@@ -46,7 +49,20 @@ export class FlukeDevice
         }
         else if (meshName == 'PowerButton')
         {
-
+            let video = document.createElement('video')
+            video.src = 'save.mp4'
+            video.autoplay = true
+            video.addEventListener('ended', e=>{
+                let screen = this.meshes.get('Screen')
+                this._applyMaterial(screen, this.defaultScreenMaterial)
+            })
+            let screenTextureVideoTexture = new THREE.VideoTexture(video)
+            screenTextureVideoTexture.flipY = false
+            screenTextureVideoTexture.offset.set(-0.02, -0.65);
+            screenTextureVideoTexture.repeat.set(1.025, 1.675);
+            let screen = this.meshes.get('Screen')
+            let videoMaterial = new THREE.MeshBasicMaterial({map: screenTextureVideoTexture})
+            this._applyMaterial(screen, videoMaterial)
         }
         else if (meshName == 'FunctionsButton')
         {
@@ -68,9 +84,24 @@ export class FlukeDevice
         {
 
         }
-        else if (meshName == 'SliderButton')
+    }
+
+    onSelectSlider(meshName)
+    {
+        if (meshName == 'SliderButton')
         {
             this.isSliderSelected = true
+            let video = document.createElement('video')
+            video.src = 'save.mp4'
+            video.autoplay = true
+            video.loop = true
+            let screenTextureVideoTexture = new THREE.VideoTexture(video)
+            screenTextureVideoTexture.flipY = false
+            screenTextureVideoTexture.offset.set(-0.02, -0.65);
+            screenTextureVideoTexture.repeat.set(1.025, 1.675);
+            let screen = this.meshes.get('Screen')
+            let videoMaterial = new THREE.MeshBasicMaterial({map: screenTextureVideoTexture})
+            this._applyMaterial(screen, videoMaterial)
         }
     }
 
@@ -79,15 +110,20 @@ export class FlukeDevice
         if (this.isSliderSelected)
         {
             let slider = this.meshes.get('SliderButton')
-            slider.rotation.y = MathUtils.degToRad(angle)
+            slider.rotation.y = THREE.MathUtils.degToRad(angle)
         }
     }
 
     unselectSlider() 
     { 
-        this.isSliderSelected = false
-        let slider = this.meshes.get('SliderButton')
-        slider.rotation.y = 0 
+        if (this.isSliderSelected)
+        {
+            this.isSliderSelected = false
+            let slider = this.meshes.get('SliderButton')
+            slider.rotation.y = 0
+            let screen = this.meshes.get('Screen')
+            this._applyMaterial(screen, this.defaultScreenMaterial)
+        }
     }
 
     _traverse(threeJsObject, onNodeReach, ...values)
@@ -98,5 +134,16 @@ export class FlukeDevice
                 this._traverse(threeJsObject.children[i], onNodeReach, values)
         }
         onNodeReach(threeJsObject, values)
+    }
+
+    _applyMaterial(threeJsObject, material)
+    {
+        if (threeJsObject.isMesh)
+            threeJsObject.material = material
+        else if (threeJsObject.children.length > 0)
+        {
+            for (let i=0; i<threeJsObject.children.length; i++)   
+                this._applyMaterial(threeJsObject.children[i], material)
+        }
     }
 }
