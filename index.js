@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'orbit'
 import { LineMaterial } from 'lineMaterial'
 import { GLTFLoader } from 'gltf-loader'
+import { FlukeDevice } from './app/FlukeDevice.js'
 
 const ENABLE_ORBIT = false
 const MODEL_PATH = 'Fluke.glb'
@@ -20,7 +21,8 @@ window.onload = () =>
     scene.add(directLightTarget)
     directLight.target = directLightTarget
     scene.add(directLight)
-    const renderer = new THREE.WebGLRenderer({canvas: document.querySelector('canvas'), antialias: true})
+    let canvas = document.querySelector('canvas')
+    const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true})
     renderer.setPixelRatio(2)
     const controls = new OrbitControls(camera, renderer.domElement )
     controls.target = new THREE.Vector3(0, 0.05, 0)
@@ -29,12 +31,49 @@ window.onload = () =>
     controls.enableRotate = ENABLE_ORBIT
     controls.enableZoom = false
 
+    let fluke = new FlukeDevice()
     let gltfLoader = new GLTFLoader()
     gltfLoader.load(MODEL_PATH, model=>{
         scene.add(model.scene)
+        fluke.setModel(model.scene)
     }, p=>{}, e=>{})
-    animate()
 
+    let raycaster = new THREE.Raycaster();
+    let mouseHold = false
+    let meshName = ''
+    let cursor = new THREE.Vector2()
+    let sliderRotAngle = 0
+    canvas.addEventListener('mousedown', e=>{
+        mouseHold = true
+        cursor.x = e.clientX
+        cursor.y = e.clientY
+        let intersects = rayCast(e.clientX, e.clientY)
+        meshName = intersects[0].object.name
+        fluke.onSelect(meshName)
+    })
+
+    canvas.addEventListener('mousemove', e=>{
+        if (mouseHold)
+        {
+            fluke.rotateSlider(sliderRotAngle+=5)
+            cursor.x = e.clientX
+            cursor.y = e.clientY
+        }
+    })
+
+    canvas.addEventListener('mouseup', e=>{
+        sliderRotAngle = 0
+        mouseHold = false
+        fluke.unselectSlider()
+        let intersects = rayCast(e.clientX, e.clientY)
+        if (intersects.length > 0)
+        {
+            meshName = intersects[0].object.name
+            fluke.onSelect(meshName)
+        }
+    })
+
+    animate()
     function animate() 
     {
         requestAnimationFrame(animate)
@@ -45,5 +84,13 @@ window.onload = () =>
         controls.update()
         directLight.position.set(camera.position.x, camera.position.y, camera.position.z)
         directLight.lookAt(new THREE.Vector3())
+    }
+
+    function rayCast(x,y)
+    {
+        let ndcX = (x/window.innerWidth) * 2 - 1;
+        let ndcY = -(y/window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(new THREE.Vector2(ndcX, ndcY), camera)
+        return raycaster.intersectObjects(scene.children) 
     }
 }
