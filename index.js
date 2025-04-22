@@ -31,48 +31,50 @@ window.onload = () =>
     controls.enableRotate = ENABLE_ORBIT
     controls.enableZoom = false
 
+    let hasModelLoaded = false
+    let raycaster = new THREE.Raycaster();
+    let mouseHold = false
+    let meshName = ''
+    let sliderRotAngle = 0
+
     let fluke = new FlukeDevice()
     let gltfLoader = new GLTFLoader()
     gltfLoader.load(MODEL_PATH, model=>{
+        hasModelLoaded = true
         scene.add(model.scene)
         fluke.setModel(model.scene)
     }, p=>{}, e=>{})
 
-    let raycaster = new THREE.Raycaster();
-    let mouseHold = false
-    let meshName = ''
-    let cursor = new THREE.Vector2()
-    let sliderRotAngle = 0
     canvas.addEventListener('mousedown', e=>{
-        mouseHold = true
-        cursor.x = e.clientX
-        cursor.y = e.clientY
-        let intersects = rayCast(e.clientX, e.clientY)
-        if (intersects.length > 0)
+        if (hasModelLoaded)
         {
-            meshName = intersects[0].object.name
-            fluke.onSelectSlider(meshName)
+            mouseHold = true
+            let intersects = rayCast(e.clientX, e.clientY)
+            if (intersects.length > 0)
+            {
+                meshName = intersects[0].object.name
+                fluke.onSelectSlider(meshName)
+            }
         }
     })
 
     canvas.addEventListener('mousemove', e=>{
-        if (mouseHold)
-        {
-            fluke.rotateSlider(sliderRotAngle+=5)
-            cursor.x = e.clientX
-            cursor.y = e.clientY
-        }
+        if (hasModelLoaded && mouseHold)
+            fluke.rotateSlider(e.clientX, e.clientY)
     })
 
     canvas.addEventListener('mouseup', e=>{
-        sliderRotAngle = 0
-        mouseHold = false
-        fluke.unselectSlider()
-        let intersects = rayCast(e.clientX, e.clientY)
-        if (intersects.length > 0)
+        if (hasModelLoaded)
         {
-            meshName = intersects[0].object.name
-            fluke.onSelect(meshName)
+            sliderRotAngle = 0
+            mouseHold = false
+            fluke.unselectSlider()
+            let intersects = rayCast(e.clientX, e.clientY)
+            if (intersects.length > 0)
+            {
+                meshName = intersects[0].object.name
+                fluke.onSelect(meshName)
+            }
         }
     })
 
@@ -87,6 +89,7 @@ window.onload = () =>
         controls.update()
         directLight.position.set(camera.position.x, camera.position.y, camera.position.z)
         directLight.lookAt(new THREE.Vector3())
+        fluke.updateSliderRasterPosition(camera)
     }
 
     function rayCast(x,y)

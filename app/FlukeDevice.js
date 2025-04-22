@@ -7,6 +7,8 @@ export class FlukeDevice
         this.meshes = new Map()
         this.isSliderSelected = false
         this.powerOn = false
+        this.sliderRasterPosition = new THREE.Vector2()
+        this.sliderRasterUp = new THREE.Vector3(0, 1)
     }
 
     setModel(model)
@@ -146,12 +148,12 @@ export class FlukeDevice
         }
     }
 
-    rotateSlider(angle)
+    rotateSlider(x, y)
     {
         if (this.isSliderSelected)
         {
             let slider = this.meshes.get('SliderButton')
-            slider.rotation.y = THREE.MathUtils.degToRad(angle)
+            slider.rotation.y = this._getRotationAngleForSlider(x, y)
         }
     }
 
@@ -167,6 +169,19 @@ export class FlukeDevice
                 let screen = this.meshes.get('Screen')
                 this._applyMaterial(screen, this.defaultScreenMaterial)
             }
+        }
+    }
+
+    updateSliderRasterPosition(camera)
+    {
+        let slider = this.meshes.get('SliderButton')
+        if (slider != undefined)
+        {
+            let worldPoint = new THREE.Vector3()
+            slider.getWorldPosition(worldPoint)
+            worldPoint.project(camera)
+            this.sliderRasterPosition.x = ((worldPoint.x + 1)/2) * window.innerWidth
+            this.sliderRasterPosition.y = ((1 - worldPoint.y)/2) * window.innerHeight
         }
     }
 
@@ -189,5 +204,20 @@ export class FlukeDevice
             for (let i=0; i<threeJsObject.children.length; i++)   
                 this._applyMaterial(threeJsObject.children[i], material)
         }
+    }
+
+    _getRotationAngleForSlider(x, y)
+    {
+        let pointer = new THREE.Vector2(x, y)
+        let center2Pointer = new THREE.Vector2(pointer.x - this.sliderRasterPosition.x, pointer.y - this.sliderRasterPosition.y)
+        let center2PointerLengthSquared = ((this.sliderRasterPosition.x - pointer.x) * (this.sliderRasterPosition.x - pointer.x)) + ((this.sliderRasterPosition.y - pointer.y) * (this.sliderRasterPosition.y - pointer.y))
+        let center2PointerLength = Math.sqrt(center2PointerLengthSquared)
+        center2Pointer.x /= center2PointerLength
+        center2Pointer.y /= center2PointerLength
+        let dot = (center2Pointer.x * this.sliderRasterUp.x) + (center2Pointer.y * this.sliderRasterUp.y)
+        let angle = Math.acos(dot)
+        if (x > this.sliderRasterPosition.x)
+            angle = -angle
+        return angle
     }
 }
