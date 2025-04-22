@@ -4,7 +4,7 @@ import { LineMaterial } from 'lineMaterial'
 import { GLTFLoader } from 'gltf-loader'
 import { FlukeDevice } from './app/FlukeDevice.js'
 
-const ENABLE_ORBIT = false
+const ENABLE_ORBIT = true
 const MODEL_PATH = 'Fluke.glb'
 window.onload = () =>
 {
@@ -35,9 +35,9 @@ window.onload = () =>
     let raycaster = new THREE.Raycaster();
     let mouseHold = false
     let meshName = ''
-    let sliderRotAngle = 0
     let progressDots = 1
     let status = 0
+    let isSliderSelected = false
 
     let loadingScreen = document.getElementById('loading-screen')
     let loadingText = document.getElementById('loading-text')
@@ -66,22 +66,27 @@ window.onload = () =>
             if (intersects.length > 0)
             {
                 meshName = intersects[0].object.name
-                fluke.onSelectSlider(meshName)
+                isSliderSelected = fluke.onSelectSlider(meshName)
+                if (isSliderSelected)
+                    controls.enableRotate = false
             }
         }
     })
 
     canvas.addEventListener('mousemove', e=>{
-        if (hasModelLoaded && mouseHold)
+        if (hasModelLoaded && mouseHold && isSliderSelected)
             fluke.rotateSlider(e.clientX, e.clientY)
     })
 
     canvas.addEventListener('mouseup', e=>{
         if (hasModelLoaded)
         {
-            sliderRotAngle = 0
             mouseHold = false
-            fluke.unselectSlider()
+            if (isSliderSelected)
+            {    
+                fluke.unselectSlider()
+                controls.enableRotate = ENABLE_ORBIT
+            }
             let intersects = rayCast(e.clientX, e.clientY)
             if (intersects.length > 0)
             {

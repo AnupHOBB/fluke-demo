@@ -165,7 +165,9 @@ export class FlukeDevice
                 let videoMaterial = new THREE.MeshBasicMaterial({map: screenTextureVideoTexture})
                 this._applyMaterial(screen, videoMaterial)
             }
+            return true
         }
+        return false
     }
 
     rotateSlider(x, y)
