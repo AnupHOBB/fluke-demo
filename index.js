@@ -36,6 +36,8 @@ window.onload = () =>
     let mouseHold = false
     let meshName = ''
     let sliderRotAngle = 0
+    let progressDots = 1
+    let status = 0
 
     let loadingScreen = document.getElementById('loading-screen')
     let loadingText = document.getElementById('loading-text')
@@ -48,12 +50,13 @@ window.onload = () =>
         fluke.setModel(model.scene)
         document.body.removeChild(loadingScreen)
     }, p=>{
-        let status = (p.loaded/p.total) * 100
+        status = (p.loaded/p.total) * 100
         status = Math.trunc(status)
         if (status > 100)
             status = 100
-        loadingText.innerText = 'LOADING... '+status+'%'
     }, e=>{})
+
+    showProgress()
 
     canvas.addEventListener('mousedown', e=>{
         if (hasModelLoaded)
@@ -108,5 +111,22 @@ window.onload = () =>
         let ndcY = -(y/window.innerHeight) * 2 + 1;
         raycaster.setFromCamera(new THREE.Vector2(ndcX, ndcY), camera)
         return raycaster.intersectObjects(scene.children) 
+    }
+
+    function showProgress()
+    {
+        if (!hasModelLoaded)
+        {
+            setTimeout(()=>{
+                let dots = ''
+                for (let i=0; i<progressDots; i++)
+                    dots += '.'
+                progressDots++
+                if (progressDots > 3)
+                    progressDots = 1
+                loadingText.innerText = 'LOADING'+dots+' '+status+'%'
+                showProgress()
+            }, 100)
+        }
     }
 }
