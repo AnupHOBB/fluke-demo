@@ -48,7 +48,11 @@ window.onload = () =>
         fluke.setModel(model.scene)
         document.body.removeChild(loadingScreen)
     }, p=>{
-        loadingText.innerText = 'LOADING... '+((p.loaded/p.total) * 100)+'%'
+        let status = (p.loaded/p.total) * 100
+        status = Math.trunc(status)
+        if (status > 100)
+            status = 100
+        loadingText.innerText = 'LOADING... '+status+'%'
     }, e=>{})
 
     canvas.addEventListener('mousedown', e=>{
