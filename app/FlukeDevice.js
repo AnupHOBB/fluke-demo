@@ -6,6 +6,7 @@ export class FlukeDevice
     { 
         this.meshes = new Map()
         this.isSliderSelected = false
+        this.powerOn = false
     }
 
     setModel(model)
@@ -33,6 +34,8 @@ export class FlukeDevice
             {    
                 this.meshes.set('Screen', m)
                 this.defaultScreenMaterial = m.material
+                let blackScreenMaterial = new THREE.MeshStandardMaterial({color: new THREE.Color(0,0,0)})
+                m.material = blackScreenMaterial
             }
         })
     }
@@ -41,54 +44,86 @@ export class FlukeDevice
     {
         if (meshName == 'MenuButton')
         {
-
+            if (this.powerOn)
+            {
+                
+            }
         }
         else if (meshName == 'AlertButton')
         {
-
+            if (this.powerOn)
+            {
+                
+            }
         }
         else if (meshName == 'PowerButton')
         {
-            let video = document.createElement('video')
-            video.src = 'save.mp4'
-            video.autoplay = true
-            video.addEventListener('ended', e=>{
-                let screen = this.meshes.get('Screen')
-                this._applyMaterial(screen, this.defaultScreenMaterial)
-            })
-            let screenTextureVideoTexture = new THREE.VideoTexture(video)
-            screenTextureVideoTexture.flipY = false
-            screenTextureVideoTexture.offset.set(-0.02, -0.65);
-            screenTextureVideoTexture.repeat.set(1.025, 1.675);
             let screen = this.meshes.get('Screen')
-            let videoMaterial = new THREE.MeshBasicMaterial({map: screenTextureVideoTexture})
-            this._applyMaterial(screen, videoMaterial)
+            if (!this.powerOn)
+            {
+                this.powerOn = true
+                this._applyMaterial(screen, this.defaultScreenMaterial) 
+            }
+            else
+            {
+                this.powerOn = false
+                let blackScreenMaterial = new THREE.MeshStandardMaterial({color: new THREE.Color(0,0,0)})
+                this._applyMaterial(screen, blackScreenMaterial) 
+            }
         }
         else if (meshName == 'FunctionsButton')
         {
-
+            if (this.powerOn)
+            {
+                
+            }
         }
         else if (meshName == 'MeasureFormButton')
         {
-
+            if (this.powerOn)
+            {
+                
+            }
         }
         else if (meshName == 'WifiButton')
         {
-
+            if (this.powerOn)
+            {
+                
+            }
         }
         else if (meshName == 'SaveButton')
         {
-
+            if (this.powerOn)
+            {
+                let video = document.createElement('video')
+                video.src = 'save.mp4'
+                video.autoplay = true
+                video.addEventListener('ended', e=>{
+                    let screen = this.meshes.get('Screen')
+                    this._applyMaterial(screen, this.defaultScreenMaterial)
+                })
+                let screenTextureVideoTexture = new THREE.VideoTexture(video)
+                screenTextureVideoTexture.flipY = false
+                screenTextureVideoTexture.offset.set(-0.02, -0.65);
+                screenTextureVideoTexture.repeat.set(1.025, 1.675);
+                let screen = this.meshes.get('Screen')
+                let videoMaterial = new THREE.MeshBasicMaterial({map: screenTextureVideoTexture})
+                this._applyMaterial(screen, videoMaterial)
+            }
         }
         else if (meshName == 'TestButton')
         {
+            if (this.powerOn)
+            {
 
+            }
         }
     }
 
     onSelectSlider(meshName)
     {
-        if (meshName == 'SliderButton')
+        if (this.powerOn && meshName == 'SliderButton')
         {
             this.isSliderSelected = true
             let video = document.createElement('video')
@@ -107,7 +142,7 @@ export class FlukeDevice
 
     rotateSlider(angle)
     {
-        if (this.isSliderSelected)
+        if (this.powerOn && this.isSliderSelected)
         {
             let slider = this.meshes.get('SliderButton')
             slider.rotation.y = THREE.MathUtils.degToRad(angle)
@@ -116,7 +151,7 @@ export class FlukeDevice
 
     unselectSlider() 
     { 
-        if (this.isSliderSelected)
+        if (this.powerOn && this.isSliderSelected)
         {
             this.isSliderSelected = false
             let slider = this.meshes.get('SliderButton')

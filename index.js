@@ -11,7 +11,7 @@ window.onload = () =>
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0.9, 0.9, 0.9)
     const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000)
-    camera.position.set(0, 0.05, 0.5)
+    camera.position.set(0, 0.05, 0.4)
     const hemiLight = new THREE.HemisphereLight('#ffffff', '#000000', 6)
     scene.add(hemiLight)
     const directLight = new THREE.DirectionalLight('#ffffff', 1)
@@ -48,8 +48,11 @@ window.onload = () =>
         cursor.x = e.clientX
         cursor.y = e.clientY
         let intersects = rayCast(e.clientX, e.clientY)
-        meshName = intersects[0].object.name
-        fluke.onSelectSlider(meshName)
+        if (intersects.length > 0)
+        {
+            meshName = intersects[0].object.name
+            fluke.onSelectSlider(meshName)
+        }
     })
 
     canvas.addEventListener('mousemove', e=>{
