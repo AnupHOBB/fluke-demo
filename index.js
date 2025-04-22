@@ -37,13 +37,19 @@ window.onload = () =>
     let meshName = ''
     let sliderRotAngle = 0
 
+    let loadingScreen = document.getElementById('loading-screen')
+    let loadingText = document.getElementById('loading-text')
+
     let fluke = new FlukeDevice()
     let gltfLoader = new GLTFLoader()
     gltfLoader.load(MODEL_PATH, model=>{
         hasModelLoaded = true
         scene.add(model.scene)
         fluke.setModel(model.scene)
-    }, p=>{}, e=>{})
+        document.body.removeChild(loadingScreen)
+    }, p=>{
+        loadingText.innerText = 'LOADING... '+((p.loaded/p.total) * 100)+'%'
+    }, e=>{})
 
     canvas.addEventListener('mousedown', e=>{
         if (hasModelLoaded)
