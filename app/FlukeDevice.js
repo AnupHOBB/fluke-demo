@@ -64,13 +64,33 @@ export class FlukeDevice
             if (!this.powerOn)
             {
                 this.powerOn = true
-                this._applyMaterial(screen, this.defaultScreenMaterial) 
+                let video = document.createElement('video')
+                video.src = 'power.mp4'
+                video.autoplay = true
+                video.addEventListener('ended', e=>{
+                    if (this.powerOn)
+                    {
+                        let screen = this.meshes.get('Screen')
+                        this._applyMaterial(screen, this.defaultScreenMaterial)
+                    }
+                })
+                let screenTextureVideoTexture = new THREE.VideoTexture(video)
+                screenTextureVideoTexture.flipY = false
+                screenTextureVideoTexture.offset.set(-0.02, -0.65);
+                screenTextureVideoTexture.repeat.set(1.025, 1.675);
+                let screen = this.meshes.get('Screen')
+                let videoMaterial = new THREE.MeshBasicMaterial({map: screenTextureVideoTexture})
+                this._applyMaterial(screen, videoMaterial)
+                //let powerButton = this.meshes.get('PowerButton')
+                //powerButton.material.color = new THREE.Color(144/255, 238/255, 144/255) 
             }
             else
             {
                 this.powerOn = false
                 let blackScreenMaterial = new THREE.MeshStandardMaterial({color: new THREE.Color(0,0,0)})
                 this._applyMaterial(screen, blackScreenMaterial) 
+                //let powerButton = this.meshes.get('PowerButton')
+                //powerButton.material.color = new THREE.Color(1,1,1)
             }
         }
         else if (meshName == 'FunctionsButton')
@@ -134,7 +154,7 @@ export class FlukeDevice
             if (this.powerOn)
             {
                 let video = document.createElement('video')
-                video.src = 'save.mp4'
+                video.src = 'slider.mp4'
                 video.autoplay = true
                 video.loop = true
                 let screenTextureVideoTexture = new THREE.VideoTexture(video)
