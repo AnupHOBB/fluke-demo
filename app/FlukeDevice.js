@@ -181,24 +181,29 @@ export class FlukeDevice
             let opposite = this._isSliderRotationOpposite(x,y)
             if (opposite != undefined)
             {
-                let slider = this.meshes.get('SliderButton')
-                slider.rotation.z = this._getRotationAngleForSlider(x, y)
+                let deltaAngle = this._getDeltaRotationAngle(x, y)
+                let minAngle = THREE.MathUtils.degToRad(30)
                 let delta = 0.05
-                if (opposite)
+                if (deltaAngle > minAngle)
                 {
-                    this.sliderVideoTime -= delta
-                    if (this.sliderVideoTime < 0)
-                        this.sliderVideoTime = this.sliderVideoDuration
+                    let slider = this.meshes.get('SliderButton')
+                    slider.rotation.z = this._getRotationAngleForSlider(x, y)
+                    if (opposite)
+                    {
+                        this.sliderVideoTime -= delta * deltaAngle
+                        if (this.sliderVideoTime < 0)
+                            this.sliderVideoTime = this.sliderVideoDuration
+                    }
+                    else
+                    {
+                        this.sliderVideoTime += delta * deltaAngle
+                        if (this.sliderVideoTime >= this.sliderVideoDuration)
+                            this.sliderVideoTime = 0
+                    }
+                    this.sliderVideo.currentTime = this.sliderVideoTime
                 }
-                else
-                {
-                    this.sliderVideoTime += delta
-                    if (this.sliderVideoTime >= this.sliderVideoDuration)
-                        this.sliderVideoTime = 0
-                }
-                this.sliderVideo.currentTime = this.sliderVideoTime
-                this.previousPointer = new THREE.Vector2(x, y)
             }
+            this.previousPointer = new THREE.Vector2(x, y)
         }
     }
 
@@ -264,6 +269,24 @@ export class FlukeDevice
         if (x < this.sliderRasterPosition.x)
             angle = -angle
         return angle
+    }
+
+    _getDeltaRotationAngle(x, y)
+    {
+        let center2Pointer = new THREE.Vector2(x - this.sliderRasterPosition.x, y - this.sliderRasterPosition.y)
+        let center2PointerLengthSquared = ((this.sliderRasterPosition.x - center2Pointer.x) * (this.sliderRasterPosition.x - center2Pointer.x)) + ((this.sliderRasterPosition.y - center2Pointer.y) * (this.sliderRasterPosition.y - center2Pointer.y))
+        let center2PointerLength = Math.sqrt(center2PointerLengthSquared)
+        center2Pointer.x /= center2PointerLength
+        center2Pointer.y /= center2PointerLength
+
+        let center2PreviousPointer = new THREE.Vector2(this.previousPointer.x - this.sliderRasterPosition.x, this.previousPointer.y - this.sliderRasterPosition.y)
+        let center2PreviousPointerLengthSquared = ((this.sliderRasterPosition.x - this.previousPointer.x) * (this.sliderRasterPosition.x - this.previousPointer.x)) + ((this.sliderRasterPosition.y - this.previousPointer.y) * (this.sliderRasterPosition.y - this.previousPointer.y))
+        let center2PreviousPointerLength = Math.sqrt(center2PreviousPointerLengthSquared)
+        center2PreviousPointer.x /= center2PreviousPointerLength
+        center2PreviousPointer.y /= center2PreviousPointerLength
+
+        let dot = (center2Pointer.x * center2PreviousPointer.x) + (center2Pointer.y * center2PreviousPointer.y)
+        return Math.acos(dot)
     }
 
     _isSliderRotationOpposite(x, y)
