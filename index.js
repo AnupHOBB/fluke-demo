@@ -66,7 +66,7 @@ window.onload = () =>
             if (intersects.length > 0)
             {
                 meshName = intersects[0].object.name
-                isSliderSelected = fluke.onSelectSlider(meshName)
+                isSliderSelected = fluke.onSelectSlider(meshName, e.clientX, e.clientY)
                 if (isSliderSelected)
                     controls.enableRotate = false
             }

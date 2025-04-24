@@ -10,6 +10,11 @@ export class FlukeDevice
         this.turningOn = false
         this.sliderRasterPosition = new THREE.Vector2()
         this.sliderRasterUp = new THREE.Vector3(0, 1)
+        this.previousPointer = new THREE.Vector2()
+        this.sliderVideo = document.createElement('video')
+        this.sliderVideo.src = 'slider.mp4'
+        this.sliderVideoDuration = 3.8
+        this.sliderVideoTime = 0
     }
 
     setModel(model)
@@ -146,18 +151,17 @@ export class FlukeDevice
         }
     }
 
-    onSelectSlider(meshName)
+    onSelectSlider(meshName, x, y)
     {
         if (meshName == 'SliderButton')
         {
             this.isSliderSelected = true
             if (this.powerOn)
             {
-                let video = document.createElement('video')
-                video.src = 'slider.mp4'
-                video.autoplay = true
-                video.loop = true
-                let screenTextureVideoTexture = new THREE.VideoTexture(video)
+                this.sliderVideoTime = 0
+                this.sliderVideo.currentTime = 0
+                this.previousPointer = new THREE.Vector2(x, y)
+                let screenTextureVideoTexture = new THREE.VideoTexture(this.sliderVideo)
                 screenTextureVideoTexture.flipY = false
                 screenTextureVideoTexture.offset.set(-0.02, -0.65);
                 screenTextureVideoTexture.repeat.set(1.025, 1.675);
@@ -173,9 +177,28 @@ export class FlukeDevice
     rotateSlider(x, y)
     {
         if (this.isSliderSelected)
-        {
-            let slider = this.meshes.get('SliderButton')
-            slider.rotation.z = this._getRotationAngleForSlider(x, y)
+        { 
+            let opposite = this._isSliderRotationOpposite(x,y)
+            if (opposite != undefined)
+            {
+                let slider = this.meshes.get('SliderButton')
+                slider.rotation.z = this._getRotationAngleForSlider(x, y)
+                let delta = 0.05
+                if (opposite)
+                {
+                    this.sliderVideoTime -= delta
+                    if (this.sliderVideoTime < 0)
+                        this.sliderVideoTime = this.sliderVideoDuration
+                }
+                else
+                {
+                    this.sliderVideoTime += delta
+                    if (this.sliderVideoTime >= this.sliderVideoDuration)
+                        this.sliderVideoTime = 0
+                }
+                this.sliderVideo.currentTime = this.sliderVideoTime
+                this.previousPointer = new THREE.Vector2(x, y)
+            }
         }
     }
 
@@ -241,5 +264,28 @@ export class FlukeDevice
         if (x < this.sliderRasterPosition.x)
             angle = -angle
         return angle
+    }
+
+    _isSliderRotationOpposite(x, y)
+    {
+        let pointer = new THREE.Vector2(x, y)
+        if (pointer.x > this.sliderRasterPosition.x && this.previousPointer.x < this.sliderRasterPosition.x)
+            return true
+        else if (pointer.x < this.sliderRasterPosition.x && this.previousPointer.x > this.sliderRasterPosition.x)
+            return false
+        else if (pointer.x < this.sliderRasterPosition.x && this.previousPointer.x < this.sliderRasterPosition.x)
+        {
+            if (pointer.y > this.previousPointer.y)    
+                return true
+            else if (pointer.y < this.previousPointer.y)
+                return false
+        }
+        else if (pointer.x > this.sliderRasterPosition.x && this.previousPointer.x > this.sliderRasterPosition.x)
+        {    
+            if (pointer.y < this.previousPointer.y)
+                return true
+            else if (pointer.y > this.previousPointer.y)
+                return false
+        }
     }
 }
