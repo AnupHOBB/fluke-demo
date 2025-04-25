@@ -9,12 +9,8 @@ export class FlukeDevice
         this.powerOn = false
         this.turningOn = false
         this.sliderRasterPosition = new THREE.Vector2()
-        this.sliderRasterUp = new THREE.Vector3(0, 1)
+        this.sliderRasterUp = new THREE.Vector3(0, -1)
         this.previousPointer = new THREE.Vector2()
-        this.sliderVideo = document.createElement('video')
-        this.sliderVideo.src = 'slider.mp4'
-        this.sliderVideoDuration = 3.8
-        this.sliderVideoTime = 0
     }
 
     setModel(model)
@@ -46,6 +42,21 @@ export class FlukeDevice
                 m.material = blackScreenMaterial
             }
         })
+    }
+
+    setSliderTextures(sliderTextures) 
+    { 
+        this.sliderTextures = sliderTextures
+        if (this.sliderTextures.length > 0)
+        {
+            for (let texture of this.sliderTextures)
+            {
+                texture.flipY = false
+                texture.offset.set(-0.02, -0.65);
+                texture.repeat.set(1.025, 1.675);
+            }
+            this.defaultScreenMaterial = new THREE.MeshBasicMaterial({map: this.sliderTextures[0]})
+        }
     }
 
     onSelect(meshName)
@@ -157,18 +168,7 @@ export class FlukeDevice
         {
             this.isSliderSelected = true
             if (this.powerOn)
-            {
-                this.sliderVideoTime = 0
-                this.sliderVideo.currentTime = 0
                 this.previousPointer = new THREE.Vector2(x, y)
-                let screenTextureVideoTexture = new THREE.VideoTexture(this.sliderVideo)
-                screenTextureVideoTexture.flipY = false
-                screenTextureVideoTexture.offset.set(-0.02, -0.65);
-                screenTextureVideoTexture.repeat.set(1.025, 1.675);
-                let screen = this.meshes.get('Screen')
-                let videoMaterial = new THREE.MeshBasicMaterial({map: screenTextureVideoTexture})
-                this._applyMaterial(screen, videoMaterial)
-            }
             return true
         }
         return false
@@ -178,30 +178,19 @@ export class FlukeDevice
     {
         if (this.isSliderSelected)
         { 
-            let opposite = this._isSliderRotationOpposite(x,y)
-            if (opposite != undefined)
+            let slider = this.meshes.get('SliderButton')
+            let angle = this._getRotationAngleForSlider(x, y)
+            slider.rotation.z = angle
+            if (this.powerOn)
             {
-                let deltaAngle = this._getDeltaRotationAngle(x, y)
-                let minAngle = THREE.MathUtils.degToRad(30)
-                let delta = 0.05
-                if (deltaAngle > minAngle)
-                {
-                    let slider = this.meshes.get('SliderButton')
-                    slider.rotation.z = this._getRotationAngleForSlider(x, y)
-                    if (opposite)
-                    {
-                        this.sliderVideoTime -= delta * deltaAngle
-                        if (this.sliderVideoTime < 0)
-                            this.sliderVideoTime = this.sliderVideoDuration
-                    }
-                    else
-                    {
-                        this.sliderVideoTime += delta * deltaAngle
-                        if (this.sliderVideoTime >= this.sliderVideoDuration)
-                            this.sliderVideoTime = 0
-                    }
-                    this.sliderVideo.currentTime = this.sliderVideoTime
-                }
+                let degree = Math.round(THREE.MathUtils.radToDeg(-angle))
+                if (degree < 0)
+                    degree = 360 + degree
+                let roundedDegree = Math.trunc(degree/27.7) * 27.7
+                let index = Math.trunc(roundedDegree/27.7)
+                let screen = this.meshes.get('Screen')
+                screen.material.map = this.sliderTextures[index]
+                this.defaultScreenMaterial.map = this.sliderTextures[index]
             }
             this.previousPointer = new THREE.Vector2(x, y)
         }
@@ -212,12 +201,10 @@ export class FlukeDevice
         if (this.isSliderSelected)
         {
             this.isSliderSelected = false
-            let slider = this.meshes.get('SliderButton')
-            slider.rotation.y = 0
-            if (this.powerOn)
+            if (!this.powerOn)
             {
-                let screen = this.meshes.get('Screen')
-                this._applyMaterial(screen, this.defaultScreenMaterial)
+                let slider = this.meshes.get('SliderButton')
+                slider.rotation.y = 0
             }
         }
     }
@@ -266,49 +253,8 @@ export class FlukeDevice
         center2Pointer.y /= center2PointerLength
         let dot = (center2Pointer.x * this.sliderRasterUp.x) + (center2Pointer.y * this.sliderRasterUp.y)
         let angle = Math.acos(dot)
-        if (x < this.sliderRasterPosition.x)
+        if (x >= this.sliderRasterPosition.x)
             angle = -angle
         return angle
-    }
-
-    _getDeltaRotationAngle(x, y)
-    {
-        let center2Pointer = new THREE.Vector2(x - this.sliderRasterPosition.x, y - this.sliderRasterPosition.y)
-        let center2PointerLengthSquared = ((this.sliderRasterPosition.x - center2Pointer.x) * (this.sliderRasterPosition.x - center2Pointer.x)) + ((this.sliderRasterPosition.y - center2Pointer.y) * (this.sliderRasterPosition.y - center2Pointer.y))
-        let center2PointerLength = Math.sqrt(center2PointerLengthSquared)
-        center2Pointer.x /= center2PointerLength
-        center2Pointer.y /= center2PointerLength
-
-        let center2PreviousPointer = new THREE.Vector2(this.previousPointer.x - this.sliderRasterPosition.x, this.previousPointer.y - this.sliderRasterPosition.y)
-        let center2PreviousPointerLengthSquared = ((this.sliderRasterPosition.x - this.previousPointer.x) * (this.sliderRasterPosition.x - this.previousPointer.x)) + ((this.sliderRasterPosition.y - this.previousPointer.y) * (this.sliderRasterPosition.y - this.previousPointer.y))
-        let center2PreviousPointerLength = Math.sqrt(center2PreviousPointerLengthSquared)
-        center2PreviousPointer.x /= center2PreviousPointerLength
-        center2PreviousPointer.y /= center2PreviousPointerLength
-
-        let dot = (center2Pointer.x * center2PreviousPointer.x) + (center2Pointer.y * center2PreviousPointer.y)
-        return Math.acos(dot)
-    }
-
-    _isSliderRotationOpposite(x, y)
-    {
-        let pointer = new THREE.Vector2(x, y)
-        if (pointer.x > this.sliderRasterPosition.x && this.previousPointer.x < this.sliderRasterPosition.x)
-            return true
-        else if (pointer.x < this.sliderRasterPosition.x && this.previousPointer.x > this.sliderRasterPosition.x)
-            return false
-        else if (pointer.x < this.sliderRasterPosition.x && this.previousPointer.x < this.sliderRasterPosition.x)
-        {
-            if (pointer.y > this.previousPointer.y)    
-                return true
-            else if (pointer.y < this.previousPointer.y)
-                return false
-        }
-        else if (pointer.x > this.sliderRasterPosition.x && this.previousPointer.x > this.sliderRasterPosition.x)
-        {    
-            if (pointer.y < this.previousPointer.y)
-                return true
-            else if (pointer.y > this.previousPointer.y)
-                return false
-        }
     }
 }

@@ -6,6 +6,9 @@ import { FlukeDevice } from './app/FlukeDevice.js'
 
 const ENABLE_ORBIT = true
 const MODEL_PATH = 'Fluke.glb'
+const SLIDER_IMAGE_PATHS = ['sliderscreens/0.png', 'sliderscreens/1.png', 'sliderscreens/2.png', 'sliderscreens/3.png', 'sliderscreens/4.png', 'sliderscreens/5.png', 'sliderscreens/6.png', 'sliderscreens/7.png', 'sliderscreens/8.png', 'sliderscreens/9.png', 'sliderscreens/10.png', 'sliderscreens/11.png', 'sliderscreens/12.png']
+const SLIDER_TEXTURES = []
+
 window.onload = () =>
 {
     const scene = new THREE.Scene();
@@ -48,13 +51,14 @@ window.onload = () =>
         hasModelLoaded = true
         scene.add(model.scene)
         fluke.setModel(model.scene)
-        document.body.removeChild(loadingScreen)
+        loadTextures(0)
     }, p=>{
-        status = (p.loaded/p.total) * 100
+        status = (p.loaded/p.total) * 50
         status = Math.trunc(status)
-        if (status > 100)
-            status = 100
+        if (status > 50)
+            status = 50
     }, e=>{})
+
 
     showProgress()
 
@@ -132,6 +136,26 @@ window.onload = () =>
                 loadingText.innerText = 'LOADING'+dots+' '+status+'%'
                 showProgress()
             }, 100)
+        }
+    }
+
+    function loadTextures(index)
+    {
+        if (index >= 0 && index < SLIDER_IMAGE_PATHS.length)
+        {
+            new THREE.TextureLoader().load(SLIDER_IMAGE_PATHS[index], t => {
+                SLIDER_TEXTURES.push(t)
+                status = Math.trunc(50 + (((index+1)/SLIDER_IMAGE_PATHS.length) * 50))
+                if (status > 100)
+                    status = 100
+                loadTextures(++index)
+            })
+        }
+        else
+        {
+            status = 100
+            fluke.setSliderTextures(SLIDER_TEXTURES)
+            document.body.removeChild(loadingScreen)
         }
     }
 }
