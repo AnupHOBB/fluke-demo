@@ -8,6 +8,8 @@ const ENABLE_ORBIT = true
 const MODEL_PATH = 'Fluke.glb'
 const SLIDER_IMAGE_PATHS = ['sliderscreens/0.png', 'sliderscreens/1.png', 'sliderscreens/2.png', 'sliderscreens/3.png', 'sliderscreens/4.png', 'sliderscreens/5.png', 'sliderscreens/6.png', 'sliderscreens/7.png', 'sliderscreens/8.png', 'sliderscreens/9.png', 'sliderscreens/10.png', 'sliderscreens/11.png', 'sliderscreens/12.png']
 const SLIDER_TEXTURES = []
+const SLIDER_FUNCTION_PATHS = ['sliderfunctions/0.png', 'sliderfunctions/1.png']
+const SLIDER_FUNCTION_TEXTURES = []
 
 window.onload = () =>
 {
@@ -41,6 +43,7 @@ window.onload = () =>
     let progressDots = 1
     let status = 0
     let isSliderSelected = false
+    let hasMouseMoved = false
 
     let loadingScreen = document.getElementById('loading-screen')
     let loadingText = document.getElementById('loading-text')
@@ -66,6 +69,7 @@ window.onload = () =>
         if (hasModelLoaded)
         {
             mouseHold = true
+            hasMouseMoved = false
             let intersects = rayCast(e.clientX, e.clientY)
             if (intersects.length > 0)
             {
@@ -79,7 +83,10 @@ window.onload = () =>
 
     canvas.addEventListener('mousemove', e=>{
         if (hasModelLoaded && mouseHold && isSliderSelected)
+        {
+            hasMouseMoved = true   
             fluke.rotateSlider(e.clientX, e.clientY)
+        }
     })
 
     canvas.addEventListener('mouseup', e=>{
@@ -96,6 +103,8 @@ window.onload = () =>
             {
                 meshName = intersects[0].object.name
                 fluke.onSelect(meshName)
+                if (!hasMouseMoved)
+                    fluke.onClickedSlider(meshName)
             }
         }
     })
@@ -145,16 +154,36 @@ window.onload = () =>
         {
             new THREE.TextureLoader().load(SLIDER_IMAGE_PATHS[index], t => {
                 SLIDER_TEXTURES.push(t)
-                status = Math.trunc(50 + (((index+1)/SLIDER_IMAGE_PATHS.length) * 50))
-                if (status > 100)
-                    status = 100
+                status = Math.trunc(50 + (((index+1)/SLIDER_IMAGE_PATHS.length) * 40))
+                if (status > 90)
+                    status = 90
                 loadTextures(++index)
             })
         }
         else
         {
-            status = 100
+            status = 90
             fluke.setSliderTextures(SLIDER_TEXTURES)
+            loadFunctionTextures(0)
+        }
+    }
+
+    function loadFunctionTextures(index)
+    {
+        if (index >= 0 && index < SLIDER_FUNCTION_PATHS.length)
+        {
+            new THREE.TextureLoader().load(SLIDER_FUNCTION_PATHS[index], t => {
+                SLIDER_FUNCTION_TEXTURES.push(t)
+                status = Math.trunc(90 + (((index+1)/SLIDER_FUNCTION_PATHS.length) * 10))
+                if (status > 100)
+                    status = 100
+                loadFunctionTextures(++index)
+            })
+        }
+        else
+        {
+            status = 100
+            fluke.setSliderFunctionTextures(SLIDER_FUNCTION_TEXTURES)
             document.body.removeChild(loadingScreen)
         }
     }

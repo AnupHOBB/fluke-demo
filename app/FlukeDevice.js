@@ -11,6 +11,8 @@ export class FlukeDevice
         this.sliderRasterPosition = new THREE.Vector2()
         this.sliderRasterUp = new THREE.Vector3(0, -1)
         this.previousPointer = new THREE.Vector2()
+        this.selectedSliderImageIndex = 0
+        this.isSliderFunctionMenuOpen = false
     }
 
     setModel(model)
@@ -56,6 +58,20 @@ export class FlukeDevice
                 texture.repeat.set(1.025, 1.675);
             }
             this.defaultScreenMaterial = new THREE.MeshBasicMaterial({map: this.sliderTextures[0]})
+        }
+    }
+
+    setSliderFunctionTextures(sliderFunctionTextures) 
+    { 
+        this.sliderFunctionTextures = sliderFunctionTextures
+        if (this.sliderFunctionTextures.length > 0)
+        {
+            for (let texture of this.sliderFunctionTextures)
+            {
+                texture.flipY = false
+                texture.offset.set(-0.02, -0.65);
+                texture.repeat.set(1.025, 1.675);
+            }
         }
     }
 
@@ -174,6 +190,25 @@ export class FlukeDevice
         return false
     }
 
+    onClickedSlider(meshName)
+    {
+        if (this.powerOn && meshName == 'SliderButton')
+        {
+            if (this.isSliderFunctionMenuOpen)
+            {
+                let screen = this.meshes.get('Screen')
+                screen.material.map = this.sliderTextures[this.selectedSliderImageIndex]
+                this.isSliderFunctionMenuOpen = false
+            }
+            else if (this.selectedSliderImageIndex < this.sliderFunctionTextures.length)
+            {
+                let screen = this.meshes.get('Screen')
+                screen.material.map = this.sliderFunctionTextures[this.selectedSliderImageIndex]
+                this.isSliderFunctionMenuOpen = true
+            }
+        }
+    }
+
     rotateSlider(x, y)
     {
         if (this.isSliderSelected)
@@ -191,6 +226,7 @@ export class FlukeDevice
                 let screen = this.meshes.get('Screen')
                 screen.material.map = this.sliderTextures[index]
                 this.defaultScreenMaterial.map = this.sliderTextures[index]
+                this.selectedSliderImageIndex = index
             }
             this.previousPointer = new THREE.Vector2(x, y)
         }
