@@ -8,7 +8,7 @@ const ENABLE_ORBIT = true
 const MODEL_PATH = 'Fluke.glb'
 const SLIDER_IMAGE_PATHS = ['sliderscreens/0.png', 'sliderscreens/1.png', 'sliderscreens/2.png', 'sliderscreens/3.png', 'sliderscreens/4.png', 'sliderscreens/5.png', 'sliderscreens/6.png', 'sliderscreens/7.png', 'sliderscreens/8.png', 'sliderscreens/9.png', 'sliderscreens/10.png', 'sliderscreens/11.png', 'sliderscreens/12.png']
 const SLIDER_TEXTURES = []
-const SLIDER_FUNCTION_PATHS = ['sliderfunctions/0.png', 'sliderfunctions/1.png']
+const SLIDER_FUNCTION_PATHS = ['sliderfunctions/0.png', 'sliderfunctions/1.png', 'sliderfunctions/2.png', 'sliderfunctions/3.png']
 const SLIDER_FUNCTION_TEXTURES = []
 
 window.onload = () =>
@@ -16,7 +16,7 @@ window.onload = () =>
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0.9, 0.9, 0.9)
     const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000)
-    camera.position.set(0, 0.05, 0.4)
+    camera.position.set(0.01, 0.05, 0.4)
     const hemiLight = new THREE.HemisphereLight('#ffffff', '#000000', 6)
     scene.add(hemiLight)
     const directLight = new THREE.DirectionalLight('#ffffff', 1)
