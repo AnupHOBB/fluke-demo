@@ -13,6 +13,8 @@ export class FlukeDevice
         this.previousPointer = new THREE.Vector2()
         this.selectedSliderImageIndex = 0
         this.isSliderFunctionMenuOpen = false
+        this.baseAngleInDegrees = 0
+        this.lastAngleInDegrees = 0
     }
 
     setModel(model)
@@ -184,7 +186,15 @@ export class FlukeDevice
         {
             this.isSliderSelected = true
             if (this.powerOn)
+            {    
                 this.previousPointer = new THREE.Vector2(x, y)
+                let angle = this._getRotationAngleForSlider(x, y)
+                let degree = Math.round(THREE.MathUtils.radToDeg(-angle))
+                if (degree < 0)
+                    degree = 360 + degree
+                let roundedDegree = Math.trunc(degree/27.7) * 27.7
+                this.baseAngleInDegrees = roundedDegree
+            }
             return true
         }
         return false
@@ -220,8 +230,14 @@ export class FlukeDevice
             {
                 let degree = Math.round(THREE.MathUtils.radToDeg(-angle))
                 if (degree < 0)
+                    degree = 360 + degree        
+                let delta = this.lastAngleInDegrees - this.baseAngleInDegrees
+                degree += this.lastAngleInDegrees - this.baseAngleInDegrees
+                if (degree < 0)
                     degree = 360 + degree
-                let roundedDegree = Math.trunc(degree/27.7) * 27.7
+                else if (degree > 360)
+                    degree = degree - 360
+                let roundedDegree = Math.trunc(degree/27.7) * 27.7  
                 let index = Math.trunc(roundedDegree/27.7)
                 let screen = this.meshes.get('Screen')
                 screen.material.map = this.sliderTextures[index]
@@ -237,10 +253,12 @@ export class FlukeDevice
         if (this.isSliderSelected)
         {
             this.isSliderSelected = false
-            if (!this.powerOn)
+            if (this.powerOn)
+                this.lastAngleInDegrees = this.selectedSliderImageIndex * 27.7
+            else
             {
                 let slider = this.meshes.get('SliderButton')
-                slider.rotation.y = 0
+                slider.rotation.z = 0
             }
         }
     }
