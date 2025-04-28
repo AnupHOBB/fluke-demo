@@ -81,6 +81,9 @@ export class FlukeDevice
     {
         if (meshName == 'MenuButton')
         {
+            let menuButton = this.meshes.get('MenuButton')
+            menuButton.position.z -= 0.002
+            setTimeout(()=>{menuButton.position.z += 0.002}, 100)
             if (this.powerOn)
             {
                 
@@ -88,6 +91,9 @@ export class FlukeDevice
         }
         else if (meshName == 'AlertButton')
         {
+            let alertButton = this.meshes.get('AlertButton')
+            alertButton.position.z -= 0.002
+            setTimeout(()=>{alertButton.position.z += 0.002}, 100)
             if (this.powerOn)
             {
                 
@@ -95,7 +101,9 @@ export class FlukeDevice
         }
         else if (meshName == 'PowerButton')
         {
-            let screen = this.meshes.get('Screen')
+            let powerButton = this.meshes.get('PowerButton')
+            powerButton.position.z -= 0.002
+            setTimeout(()=>{powerButton.position.z += 0.002}, 100)
             if (!this.powerOn && !this.turningOn)
             {
                 this.turningOn = true
@@ -122,6 +130,7 @@ export class FlukeDevice
             {
                 this.powerOn = false
                 let blackScreenMaterial = new THREE.MeshStandardMaterial({color: new THREE.Color(0,0,0)})
+                let screen = this.meshes.get('Screen')
                 this._applyMaterial(screen, blackScreenMaterial) 
                 let powerButton = this.meshes.get('PowerButton')
                 powerButton.material.color = new THREE.Color(1,1,1)
@@ -129,6 +138,9 @@ export class FlukeDevice
         }
         else if (meshName == 'FunctionsButton')
         {
+            let functionsButton = this.meshes.get('FunctionsButton')
+            functionsButton.position.z -= 0.002
+            setTimeout(()=>{functionsButton.position.z += 0.002}, 100)
             if (this.powerOn)
             {
                 
@@ -136,6 +148,9 @@ export class FlukeDevice
         }
         else if (meshName == 'MeasureFormButton')
         {
+            let measureFormButton = this.meshes.get('MeasureFormButton')
+            measureFormButton.position.z -= 0.002
+            setTimeout(()=>{measureFormButton.position.z += 0.002}, 100)
             if (this.powerOn)
             {
                 
@@ -143,6 +158,9 @@ export class FlukeDevice
         }
         else if (meshName == 'WifiButton')
         {
+            let wifiButton = this.meshes.get('WifiButton')
+            wifiButton.position.z -= 0.002
+            setTimeout(()=>{wifiButton.position.z += 0.002}, 100)
             if (this.powerOn)
             {
                 
@@ -150,6 +168,9 @@ export class FlukeDevice
         }
         else if (meshName == 'SaveButton')
         {
+            let saveButton = this.meshes.get('SaveButton')
+            saveButton.position.z -= 0.002
+            setTimeout(()=>{saveButton.position.z += 0.002}, 100)
             if (this.powerOn)
             {
                 let video = document.createElement('video')
@@ -173,6 +194,9 @@ export class FlukeDevice
         }
         else if (meshName == 'TestButton')
         {
+            let testButton = this.meshes.get('TestButton')
+            testButton.position.z -= 0.002
+            setTimeout(()=>{testButton.position.z += 0.002}, 100)
             if (this.powerOn)
             {
 
@@ -202,6 +226,9 @@ export class FlukeDevice
 
     onClickedSlider(meshName)
     {
+        let slider = this.meshes.get('SliderButton')
+        slider.position.z -= 0.005
+        setTimeout(()=>{slider.position.z += 0.005}, 100)
         if (this.powerOn && meshName == 'SliderButton')
         {
             if (this.isSliderFunctionMenuOpen)
@@ -255,11 +282,6 @@ export class FlukeDevice
             this.isSliderSelected = false
             if (this.powerOn)
                 this.lastAngleInDegrees = this.selectedSliderImageIndex * 27.7
-            else
-            {
-                let slider = this.meshes.get('SliderButton')
-                slider.rotation.z = 0
-            }
         }
     }
 
