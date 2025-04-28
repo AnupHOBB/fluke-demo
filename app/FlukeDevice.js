@@ -138,10 +138,14 @@ export class FlukeDevice
 
     onButtonRelease()
     {
-        if (this.selectedMesh.name == 'SliderButtonParent')
-            this.selectedMesh.position.z += 0.005
-        else
-            this.selectedMesh.position.z += 0.002
+        if (this.selectedMesh != null)
+        {
+            if (this.selectedMesh.name == 'SliderButtonParent')
+                this.selectedMesh.position.z += 0.005
+            else
+                this.selectedMesh.position.z += 0.002
+            this.selectedMesh = null
+        }
     }
 
     onSelect(meshName)
