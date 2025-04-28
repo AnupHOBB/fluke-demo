@@ -78,13 +78,76 @@ export class FlukeDevice
         }
     }
 
-    onSelect(meshName)
+    onButtonHold(meshName)
     {
         if (meshName == 'MenuButton')
         {
             let menuButton = this.meshes.get('MenuButton')
             menuButton.position.z -= 0.002
-            setTimeout(()=>{menuButton.position.z += 0.002}, 100)
+            this.selectedMesh = menuButton
+        }
+        else if (meshName == 'AlertButton')
+        {
+            let alertButton = this.meshes.get('AlertButton')
+            alertButton.position.z -= 0.002
+            this.selectedMesh = alertButton
+        }
+        else if (meshName == 'PowerButton')
+        {
+            let powerButton = this.meshes.get('PowerButton')
+            powerButton.position.z -= 0.002
+            this.selectedMesh = powerButton
+        }
+        else if (meshName == 'FunctionsButton')
+        {
+            let functionsButton = this.meshes.get('FunctionsButton')
+            functionsButton.position.z -= 0.002
+            this.selectedMesh = functionsButton
+        }
+        else if (meshName == 'MeasureFormButton')
+        {
+            let measureFormButton = this.meshes.get('MeasureFormButton')
+            measureFormButton.position.z -= 0.002
+            this.selectedMesh = measureFormButton
+        }
+        else if (meshName == 'WifiButton')
+        {
+            let wifiButton = this.meshes.get('WifiButton')
+            wifiButton.position.z -= 0.002
+            this.selectedMesh = wifiButton
+        }
+        else if (meshName == 'SaveButton')
+        {
+            let saveButton = this.meshes.get('SaveButton')
+            saveButton.position.z -= 0.002
+            this.selectedMesh = saveButton
+        }
+        else if (meshName == 'TestButton')
+        {
+            let testButton = this.meshes.get('TestButton')
+            testButton.position.z -= 0.002
+            this.selectedMesh = testButton
+        }
+        else if (meshName == 'SliderButton')
+        {
+            let slider = this.meshes.get('SliderButton')
+            slider.position.z -= 0.005
+            this.selectedMesh = slider
+        }
+    }
+
+    onButtonRelease()
+    {
+        if (this.selectedMesh.name == 'SliderButtonParent')
+            this.selectedMesh.position.z += 0.005
+        else
+            this.selectedMesh.position.z += 0.002
+    }
+
+    onSelect(meshName)
+    {
+        if (meshName == 'MenuButton')
+        {
             if (this.powerOn && !this.playingVideo)
             {
                 
@@ -92,9 +155,6 @@ export class FlukeDevice
         }
         else if (meshName == 'AlertButton')
         {
-            let alertButton = this.meshes.get('AlertButton')
-            alertButton.position.z -= 0.002
-            setTimeout(()=>{alertButton.position.z += 0.002}, 100)
             if (this.powerOn && !this.playingVideo)
             {
                 
@@ -102,9 +162,6 @@ export class FlukeDevice
         }
         else if (meshName == 'PowerButton')
         {
-            let powerButton = this.meshes.get('PowerButton')
-            powerButton.position.z -= 0.002
-            setTimeout(()=>{powerButton.position.z += 0.002}, 100)
             if (!this.powerOn && !this.turningOn)
             {
                 this.turningOn = true
@@ -115,6 +172,9 @@ export class FlukeDevice
                 video.autoplay = true
                 video.addEventListener('ended', e=>{
                     let screen = this.meshes.get('Screen')
+                    this.defaultScreenMaterial.map = this.sliderTextures[0]
+                    this.selectedSliderImageIndex = 0
+                    this.lastAngleInDegrees = 0
                     this._applyMaterial(screen, this.defaultScreenMaterial)
                     this.powerOn = true
                     this.turningOn = false
@@ -139,9 +199,6 @@ export class FlukeDevice
         }
         else if (meshName == 'FunctionsButton')
         {
-            let functionsButton = this.meshes.get('FunctionsButton')
-            functionsButton.position.z -= 0.002
-            setTimeout(()=>{functionsButton.position.z += 0.002}, 100)
             if (this.powerOn && !this.playingVideo)
             {
                 
@@ -149,9 +206,6 @@ export class FlukeDevice
         }
         else if (meshName == 'MeasureFormButton')
         {
-            let measureFormButton = this.meshes.get('MeasureFormButton')
-            measureFormButton.position.z -= 0.002
-            setTimeout(()=>{measureFormButton.position.z += 0.002}, 100)
             if (this.powerOn && !this.playingVideo)
             {
                 
@@ -159,9 +213,6 @@ export class FlukeDevice
         }
         else if (meshName == 'WifiButton')
         {
-            let wifiButton = this.meshes.get('WifiButton')
-            wifiButton.position.z -= 0.002
-            setTimeout(()=>{wifiButton.position.z += 0.002}, 100)
             if (this.powerOn && !this.playingVideo)
             {
                 
@@ -169,9 +220,6 @@ export class FlukeDevice
         }
         else if (meshName == 'SaveButton')
         {
-            let saveButton = this.meshes.get('SaveButton')
-            saveButton.position.z -= 0.002
-            setTimeout(()=>{saveButton.position.z += 0.002}, 100)
             if (this.powerOn && !this.playingVideo)
             {
                 let video = document.createElement('video')
@@ -181,6 +229,11 @@ export class FlukeDevice
                     if (this.powerOn)
                     {
                         let screen = this.meshes.get('Screen')
+                        if (this.isSliderFunctionMenuOpen)
+                        {
+                            this.isSliderFunctionMenuOpen = false
+                            this.defaultScreenMaterial.map = this.sliderTextures[this.selectedSliderImageIndex]
+                        }
                         this._applyMaterial(screen, this.defaultScreenMaterial)
                         this.playingVideo = false
                     }
@@ -197,9 +250,6 @@ export class FlukeDevice
         }
         else if (meshName == 'TestButton')
         {
-            let testButton = this.meshes.get('TestButton')
-            testButton.position.z -= 0.002
-            setTimeout(()=>{testButton.position.z += 0.002}, 100)
             if (this.powerOn && !this.playingVideo)
             {
 
@@ -229,9 +279,6 @@ export class FlukeDevice
 
     onClickedSlider(meshName)
     {
-        let slider = this.meshes.get('SliderButton')
-        slider.position.z -= 0.005
-        setTimeout(()=>{slider.position.z += 0.005}, 100)
         if (this.powerOn && !this.playingVideo && meshName == 'SliderButton')
         {
             if (this.isSliderFunctionMenuOpen)
@@ -261,7 +308,6 @@ export class FlukeDevice
                 let degree = Math.round(THREE.MathUtils.radToDeg(-angle))
                 if (degree < 0)
                     degree = 360 + degree        
-                let delta = this.lastAngleInDegrees - this.baseAngleInDegrees
                 degree += this.lastAngleInDegrees - this.baseAngleInDegrees
                 if (degree < 0)
                     degree = 360 + degree

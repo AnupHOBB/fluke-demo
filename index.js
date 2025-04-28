@@ -62,7 +62,6 @@ window.onload = () =>
             status = 50
     }, e=>{})
 
-
     showProgress()
 
     canvas.addEventListener('mousedown', e=>{
@@ -74,6 +73,7 @@ window.onload = () =>
             if (intersects.length > 0)
             {
                 meshName = intersects[0].object.name
+                fluke.onButtonHold(meshName)
                 isSliderSelected = fluke.onSelectSlider(meshName, e.clientX, e.clientY)
                 if (isSliderSelected)
                     controls.enableRotate = false
@@ -102,6 +102,7 @@ window.onload = () =>
             if (intersects.length > 0)
             {
                 meshName = intersects[0].object.name
+                fluke.onButtonRelease()
                 fluke.onSelect(meshName)
                 if (!hasMouseMoved)
                     fluke.onClickedSlider(meshName)
