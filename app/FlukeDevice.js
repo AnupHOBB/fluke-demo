@@ -8,6 +8,7 @@ export class FlukeDevice
         this.isSliderSelected = false
         this.powerOn = false
         this.turningOn = false
+        this.playingVideo = false
         this.sliderRasterPosition = new THREE.Vector2()
         this.sliderRasterUp = new THREE.Vector3(0, -1)
         this.previousPointer = new THREE.Vector2()
@@ -84,7 +85,7 @@ export class FlukeDevice
             let menuButton = this.meshes.get('MenuButton')
             menuButton.position.z -= 0.002
             setTimeout(()=>{menuButton.position.z += 0.002}, 100)
-            if (this.powerOn)
+            if (this.powerOn && !this.playingVideo)
             {
                 
             }
@@ -94,7 +95,7 @@ export class FlukeDevice
             let alertButton = this.meshes.get('AlertButton')
             alertButton.position.z -= 0.002
             setTimeout(()=>{alertButton.position.z += 0.002}, 100)
-            if (this.powerOn)
+            if (this.powerOn && !this.playingVideo)
             {
                 
             }
@@ -141,7 +142,7 @@ export class FlukeDevice
             let functionsButton = this.meshes.get('FunctionsButton')
             functionsButton.position.z -= 0.002
             setTimeout(()=>{functionsButton.position.z += 0.002}, 100)
-            if (this.powerOn)
+            if (this.powerOn && !this.playingVideo)
             {
                 
             }
@@ -151,7 +152,7 @@ export class FlukeDevice
             let measureFormButton = this.meshes.get('MeasureFormButton')
             measureFormButton.position.z -= 0.002
             setTimeout(()=>{measureFormButton.position.z += 0.002}, 100)
-            if (this.powerOn)
+            if (this.powerOn && !this.playingVideo)
             {
                 
             }
@@ -161,7 +162,7 @@ export class FlukeDevice
             let wifiButton = this.meshes.get('WifiButton')
             wifiButton.position.z -= 0.002
             setTimeout(()=>{wifiButton.position.z += 0.002}, 100)
-            if (this.powerOn)
+            if (this.powerOn && !this.playingVideo)
             {
                 
             }
@@ -171,7 +172,7 @@ export class FlukeDevice
             let saveButton = this.meshes.get('SaveButton')
             saveButton.position.z -= 0.002
             setTimeout(()=>{saveButton.position.z += 0.002}, 100)
-            if (this.powerOn)
+            if (this.powerOn && !this.playingVideo)
             {
                 let video = document.createElement('video')
                 video.src = 'save.mp4'
@@ -181,6 +182,7 @@ export class FlukeDevice
                     {
                         let screen = this.meshes.get('Screen')
                         this._applyMaterial(screen, this.defaultScreenMaterial)
+                        this.playingVideo = false
                     }
                 })
                 let screenTextureVideoTexture = new THREE.VideoTexture(video)
@@ -190,6 +192,7 @@ export class FlukeDevice
                 let screen = this.meshes.get('Screen')
                 let videoMaterial = new THREE.MeshBasicMaterial({map: screenTextureVideoTexture})
                 this._applyMaterial(screen, videoMaterial)
+                this.playingVideo = true
             }
         }
         else if (meshName == 'TestButton')
@@ -197,7 +200,7 @@ export class FlukeDevice
             let testButton = this.meshes.get('TestButton')
             testButton.position.z -= 0.002
             setTimeout(()=>{testButton.position.z += 0.002}, 100)
-            if (this.powerOn)
+            if (this.powerOn && !this.playingVideo)
             {
 
             }
@@ -209,7 +212,7 @@ export class FlukeDevice
         if (meshName == 'SliderButton')
         {
             this.isSliderSelected = true
-            if (this.powerOn)
+            if (this.powerOn && !this.playingVideo)
             {    
                 this.previousPointer = new THREE.Vector2(x, y)
                 let angle = this._getRotationAngleForSlider(x, y)
@@ -229,7 +232,7 @@ export class FlukeDevice
         let slider = this.meshes.get('SliderButton')
         slider.position.z -= 0.005
         setTimeout(()=>{slider.position.z += 0.005}, 100)
-        if (this.powerOn && meshName == 'SliderButton')
+        if (this.powerOn && !this.playingVideo && meshName == 'SliderButton')
         {
             if (this.isSliderFunctionMenuOpen)
             {
@@ -253,7 +256,7 @@ export class FlukeDevice
             let slider = this.meshes.get('SliderButton')
             let angle = this._getRotationAngleForSlider(x, y)
             slider.rotation.z = angle
-            if (this.powerOn)
+            if (this.powerOn && !this.playingVideo)
             {
                 let degree = Math.round(THREE.MathUtils.radToDeg(-angle))
                 if (degree < 0)
@@ -280,7 +283,7 @@ export class FlukeDevice
         if (this.isSliderSelected)
         {
             this.isSliderSelected = false
-            if (this.powerOn)
+            if (this.powerOn && !this.playingVideo)
                 this.lastAngleInDegrees = this.selectedSliderImageIndex * 27.7
         }
     }
