@@ -20,6 +20,7 @@ export class FlukeDevice
 
     setModel(model)
     {
+        this.model = model
         this._traverse(model, m => {
             if (m.name == 'MenuButton')
                 this.meshes.set('MenuButton', m)
@@ -43,9 +44,11 @@ export class FlukeDevice
             {    
                 this.meshes.set('Screen', m)
                 this.defaultScreenMaterial = m.material
-                let blackScreenMaterial = new THREE.MeshStandardMaterial({color: new THREE.Color(0,0,0)})
+                let blackScreenMaterial = new THREE.MeshStandardMaterial({color: new THREE.Color(0,0,0), roughness: 0, envMapIntensity: 1})
                 m.material = blackScreenMaterial
             }
+            else if (m.name == 'Mesh_0002_1')
+                m.material.roughness = 1
         })
     }
 
@@ -76,6 +79,13 @@ export class FlukeDevice
                 texture.repeat.set(1.025, 1.675);
             }
         }
+    }
+
+    setEnvMap(cubeTexture)
+    {
+        this.envMap = cubeTexture
+        if (this.model != undefined)
+            this._applyEnvMap(this.model, cubeTexture)
     }
 
     onButtonHold(meshName)
@@ -182,7 +192,7 @@ export class FlukeDevice
             else if (!this.turningOn)
             {
                 this.powerOn = false
-                let blackScreenMaterial = new THREE.MeshStandardMaterial({color: new THREE.Color(0,0,0)})
+                let blackScreenMaterial = new THREE.MeshStandardMaterial({color: new THREE.Color(0,0,0), roughness: 0, envMap: this.envMap, envMapIntensity: 1})
                 let screen = this.meshes.get('Screen')
                 this._applyMaterial(screen, blackScreenMaterial) 
                 let powerButton = this.meshes.get('PowerButton')
@@ -357,6 +367,20 @@ export class FlukeDevice
         {
             for (let i=0; i<threeJsObject.children.length; i++)   
                 this._applyMaterial(threeJsObject.children[i], material)
+        }
+    }
+
+    _applyEnvMap(threeJsObject, envMap)
+    {
+        if (threeJsObject.isMesh)
+        {    
+            threeJsObject.material.envMap = envMap
+            threeJsObject.material.envMapIntensity = 1
+        }
+        else if (threeJsObject.children.length > 0)
+        {
+            for (let i=0; i<threeJsObject.children.length; i++)   
+                this._applyEnvMap(threeJsObject.children[i], envMap)
         }
     }
 

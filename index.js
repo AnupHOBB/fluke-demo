@@ -10,6 +10,8 @@ const SLIDER_IMAGE_PATHS = ['sliderscreens/0.png', 'sliderscreens/1.png', 'slide
 const SLIDER_TEXTURES = []
 const SLIDER_FUNCTION_PATHS = ['sliderfunctions/0.png', 'sliderfunctions/1.png', 'sliderfunctions/2.png', 'sliderfunctions/3.png']
 const SLIDER_FUNCTION_TEXTURES = []
+const CUBE_MAP_NAMES = ['px.png','nx.png','py.png','ny.png','pz.png','nz.png']
+const CUBE_MAP_FOLDER = 'cubemap/' 
 
 window.onload = () =>
 {
@@ -176,16 +178,25 @@ window.onload = () =>
             new THREE.TextureLoader().load(SLIDER_FUNCTION_PATHS[index], t => {
                 SLIDER_FUNCTION_TEXTURES.push(t)
                 status = Math.trunc(90 + (((index+1)/SLIDER_FUNCTION_PATHS.length) * 10))
-                if (status > 100)
-                    status = 100
+                if (status > 99)
+                    status = 99
                 loadFunctionTextures(++index)
             })
         }
         else
         {
-            status = 100
+            status = 99
             fluke.setSliderFunctionTextures(SLIDER_FUNCTION_TEXTURES)
-            document.body.removeChild(loadingScreen)
+            loadCubeMap()
         }
+    }
+
+    function loadCubeMap()
+    {
+        new THREE.CubeTextureLoader().setPath(CUBE_MAP_FOLDER).load(CUBE_MAP_NAMES, cubeTexture => {
+            status = 100
+            fluke.setEnvMap(cubeTexture)
+            document.body.removeChild(loadingScreen)
+        })
     }
 }
