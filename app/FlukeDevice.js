@@ -171,25 +171,13 @@ export class FlukeDevice
                 this.turningOn = true
                 let powerButton = this.meshes.get('PowerButton')
                 powerButton.material.color = new THREE.Color(0/255, 255/255, 0/255) 
-                let video = document.createElement('video')
-                video.src = 'power.mp4'
-                video.autoplay = true
-                video.addEventListener('ended', e=>{
-                    let screen = this.meshes.get('Screen')
-                    this.defaultScreenMaterial.map = this.sliderTextures[0]
-                    this.selectedSliderImageIndex = 0
-                    this.lastAngleInDegrees = 0
-                    this._applyMaterial(screen, this.defaultScreenMaterial)
-                    this.powerOn = true
-                    this.turningOn = false
-                })
-                let screenTextureVideoTexture = new THREE.VideoTexture(video)
-                screenTextureVideoTexture.flipY = false
-                screenTextureVideoTexture.offset.set(-0.02, -0.65);
-                screenTextureVideoTexture.repeat.set(1.025, 1.675);
                 let screen = this.meshes.get('Screen')
-                let videoMaterial = new THREE.MeshBasicMaterial({map: screenTextureVideoTexture})
-                this._applyMaterial(screen, videoMaterial)
+                this.defaultScreenMaterial.map = this.sliderTextures[0]
+                this.selectedSliderImageIndex = 0
+                this.lastAngleInDegrees = 0
+                this._applyMaterial(screen, this.defaultScreenMaterial)
+                this.powerOn = true
+                this.turningOn = false
             }
             else if (!this.turningOn)
             {
